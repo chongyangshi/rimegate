@@ -11,12 +11,20 @@ import (
 	"github.com/monzo/slog"
 	"github.com/monzo/typhon"
 
+	"github.com/icydoge/rimegate/apiclient"
 	"github.com/icydoge/rimegate/config"
 	"github.com/icydoge/rimegate/server"
 )
 
 func main() {
 	initContext := context.Background()
+
+	// Initialise client for forwarding requests to Grafana
+	err := apiclient.Init(initContext)
+	if err != nil {
+		panic(err)
+	}
+	slog.Info(initContext, "Rimegate client initialised for Grafana server at %s", config.ConfigGrafanaHost)
 
 	// Initialise server for incoming requests
 	svc := server.Service()

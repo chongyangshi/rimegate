@@ -6,16 +6,22 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/monzo/typhon"
 
 	"github.com/icydoge/rimegate/config"
 )
 
+// N.B. The service itself does not enforce authentication. It is recommended that
+// basic or certificate-based authentication is applied at the reverse proxy serving
+// this service, if served over the internet.
 func Service() typhon.Service {
 	router := typhon.Router{}
+	router.POST("/render", serveRenderDashboard)
 	router.GET("/dashboards", serveListDashboards)
-	router.GET("/healthz", serveHealthCheck)
+	router.GET("/healthz", serveLiveness)
+	router.GET("/ping", serveLiveness)
 
 	svc := router.Serve().Filter(typhon.ErrorFilter).Filter(typhon.H2cFilter).Filter(ClientErrorFilter).Filter(CORSFilter)
 
@@ -23,26 +29,26 @@ func Service() typhon.Service {
 }
 
 // ClientErrorFilter strips sensitive error info before returning error to client, leaving
-// only code and message; on a best-effort basis. Very ugly written.
+// only code and message; on a best-effort basis.
 func ClientErrorFilter(req typhon.Request, svc typhon.Service) typhon.Response {
 	rsp := svc(req)
 	if rsp.Error != nil {
 		var basicErr = basicError{}
 		bodyBytes, err := rsp.BodyBytes(false)
 		if err != nil {
-			rsp.Body = ioutil.NopCloser(bytes.NewReader(basicErr.toFailbackBytes()))
+			rsp.Body = ioutil.NopCloser(bytes.NewReader(basicErr.toFailbackBytes(rsp.StatusCode)))
 			return rsp
 		}
 
 		err = json.Unmarshal(bodyBytes, &basicErr)
 		if err != nil {
-			rsp.Body = ioutil.NopCloser(bytes.NewReader(basicErr.toFailbackBytes()))
+			rsp.Body = ioutil.NopCloser(bytes.NewReader(basicErr.toFailbackBytes(rsp.StatusCode)))
 			return rsp
 		}
 
-		seralized, err := basicErr.toSerialized()
+		seralized, err := basicErr.toSerialized(rsp.StatusCode)
 		if err != nil {
-			rsp.Body = ioutil.NopCloser(bytes.NewReader(basicErr.toFailbackBytes()))
+			rsp.Body = ioutil.NopCloser(bytes.NewReader(basicErr.toFailbackBytes(rsp.StatusCode)))
 			return rsp
 		}
 
@@ -75,11 +81,25 @@ type basicError struct {
 	Message string `json:"message"`
 }
 
-func (b basicError) toFailbackBytes() []byte {
-	return []byte(fmt.Sprintf("Error (%s): %s", b.Code, b.Message))
+// For 4xx errors, message can be disclosed to the client; while for 5xx errors this shouldn't be disclosed.
+func (b basicError) toFailbackBytes(statusCode int) []byte {
+	switch {
+	case statusCode >= 400 && statusCode < 500:
+		return []byte(fmt.Sprintf("Error (%s): %s", b.Code, b.Message))
+	default:
+		return []byte(fmt.Sprintf("Error (%s): %d", b.Code, statusCode))
+	}
 }
 
-func (b basicError) toSerialized() ([]byte, error) {
+func (b basicError) toSerialized(statusCode int) ([]byte, error) {
+	exportedError := b
+	switch {
+	case statusCode >= 400 && statusCode < 500:
+		// Keep the error message
+	default:
+		exportedError.Message = strconv.FormatInt(int64(statusCode), 10)
+	}
+
 	seralized, err := json.Marshal(b)
 	return seralized, err
 }

@@ -13,8 +13,10 @@ var (
 	ConfigListenPort               = getConfigFromOSEnv("LISTEN_PORT", "8080", true)
 	ConfigGrafanaAPIKey            = getConfigFromOSEnv("GRAFANA_API_KEY", "", false)
 	ConfigGrafanaHost              = getConfigFromOSEnv("GRAFANA_HOST", "", false)
-	ConfigImageCacheDirectory      = getConfigFromOSEnv("IMAGE_CACHE_DIRECTORY", "/cache", true)
-	ConfigImageCacheValidity       = getConfigFromOSEnv("IMAGE_CACHE_VALIDITY", "1m", true)
+	ConfigGrafanaRenderTimeout     = getConfigFromOSEnv("GRAFANA_RENDER_TIMEOUT", "1m", true)
+	ConfigGrafanaMaxPeriod         = getConfigFromOSEnv("GRAFANA_MAX_PERIOD", "3h", true)
+	ConfigGrafanaDefaultPeriod     = getConfigFromOSEnv("GRAFANA_DEFAULT_PERIOD", "1h", true)
+	ConfigImageCacheValidity       = getConfigFromOSEnv("IMAGE_CACHE_VALIDITY", "2m", true)
 	ConfigAuthenticationSigningKey = getConfigFromOSEnv("AUTHENTICATION_SIGNING_KEY", "", false)
 )
 
