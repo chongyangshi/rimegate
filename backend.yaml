@@ -29,7 +29,7 @@ spec:
               name: grafana-read-only-token
         - name: GRAFANA_HOST
           value: "http://grafana.monitoring.svc.cluster.local"
-        image: 172.16.16.2:2443/go:rimegate-pending
+        image: 172.16.16.2:2443/go:rimegate-1536859
         imagePullPolicy: IfNotPresent
         name: rimegate
         ports:
