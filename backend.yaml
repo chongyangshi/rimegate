@@ -28,7 +28,7 @@ spec:
               key: grafana-read-only-token
               name: grafana-read-only-token
         - name: GRAFANA_HOST
-          value: "http://grafana.monitoring.svc.cluster.local"
+          value: "http://grafana.monitoring.svc.cluster.local:3000"
         image: 172.16.16.2:2443/go:rimegate-1536859
         imagePullPolicy: IfNotPresent
         name: rimegate
