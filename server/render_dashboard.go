@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -21,13 +22,17 @@ import (
 )
 
 var dashboardURLRegexp = regexp.MustCompile(`[a-zA-Z0-9\-\/]+`)
-var defaultPeriod time.Duration
+var defaultPeriod, maxPeriod time.Duration
 
 func init() {
 	var err error
 	defaultPeriod, err = time.ParseDuration(config.ConfigGrafanaDefaultPeriod)
 	if err != nil {
 		defaultPeriod = time.Hour
+	}
+	maxPeriod, err = time.ParseDuration(config.ConfigGrafanaMaxPeriod)
+	if err != nil {
+		maxPeriod = time.Hour * 3
 	}
 }
 
@@ -53,27 +58,7 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 	}
 
 	// Process start and end times specified, if unspecified or invalid, we use default.
-	var startTime, endTime time.Time
-	if request.StartTime == "" && request.EndTime == "" {
-		endTime = time.Now()
-		startTime = endTime.Add(-1 * defaultPeriod)
-	}
-
-	parsedStartTime, startTimeErr := time.Parse(time.RFC3339, request.StartTime)
-	parsedEndTime, endTimeErr := time.Parse(time.RFC3339, request.EndTime)
-	if startTimeErr != nil || endTimeErr != nil {
-		endTime = time.Now()
-		startTime = endTime.Add(-1 * defaultPeriod)
-	}
-
-	if parsedStartTime.After(parsedEndTime) {
-		endTime = time.Now()
-		startTime = endTime.Add(-1 * defaultPeriod)
-	}
-
-	startTime = parsedStartTime
-	endTime = parsedEndTime
-
+	startTime, endTime := validateStartEndTimes(req, request.StartTime, request.EndTime)
 	errParams["start_time"] = startTime.Format(time.RFC3339)
 	errParams["end_time"] = endTime.Format(time.RFC3339)
 
@@ -109,4 +94,35 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 func validateDashboardURL(dashboardURL string) bool {
 	// Dashboard URLs in Grafana V5+ should look like /d/VNegG8BWz/multi-cluster-network-encapsulation-wylis
 	return dashboardURLRegexp.MatchString(dashboardURL)
+}
+
+func validateStartEndTimes(ctx context.Context, startTimeStr, endTimeStr string) (time.Time, time.Time) {
+	defaultEndTime := time.Now()
+	defaultStartTime := defaultEndTime.Add(-1 * defaultPeriod)
+
+	if startTimeStr == "" || endTimeStr == "" {
+		// Default period
+		return defaultStartTime, defaultEndTime
+	}
+
+	parsedStartTime, startTimeErr := time.Parse(time.RFC3339, startTimeStr)
+	parsedEndTime, endTimeErr := time.Parse(time.RFC3339, endTimeStr)
+	if startTimeErr != nil || endTimeErr != nil {
+		slog.Warn(ctx, "Error parsing start and/or end times (%v, %v), using default.", startTimeErr, endTimeErr)
+		return defaultStartTime, defaultEndTime
+	}
+
+	if parsedStartTime.After(parsedEndTime) {
+		slog.Warn(ctx, "Start time %v is after end time %v, using default start time interval.", parsedStartTime, parsedEndTime)
+		startTime := parsedEndTime.Add(-1 * defaultPeriod)
+		return startTime, parsedEndTime
+	}
+
+	if parsedEndTime.Sub(parsedStartTime) > maxPeriod {
+		slog.Warn(ctx, "Start time %v is too far from end time %v, using max start time interval.", parsedStartTime, parsedEndTime)
+		startTime := parsedEndTime.Add(-1 * maxPeriod)
+		return startTime, parsedEndTime
+	}
+
+	return parsedStartTime, parsedEndTime
 }

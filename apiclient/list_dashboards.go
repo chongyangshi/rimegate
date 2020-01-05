@@ -13,7 +13,7 @@ import (
 	"github.com/icydoge/rimegate/types"
 )
 
-func ListDashboards(ctx context.Context) (map[string][]*types.GrafanaDashboard, error) {
+func ListDashboards(ctx context.Context) (map[string][]types.GrafanaDashboard, error) {
 	// Perform an empty search to list all dashboards the API token has read access to
 	requestURL := fmt.Sprintf("%s/api/%s", config.ConfigGrafanaHost, "search?query=")
 	errParams := map[string]string{
@@ -21,7 +21,7 @@ func ListDashboards(ctx context.Context) (map[string][]*types.GrafanaDashboard, 
 	}
 
 	req := typhon.NewRequest(ctx, http.MethodGet, requestURL, nil)
-	req.Header.Set("Authorization", fmt.Sprint("Bearer: %s", config.ConfigGrafanaAPIKey))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.ConfigGrafanaAPIKey))
 
 	rsp := req.Send().Response()
 	if rsp.Error != nil {
@@ -42,7 +42,7 @@ func ListDashboards(ctx context.Context) (map[string][]*types.GrafanaDashboard, 
 		return nil, err
 	}
 
-	categorisedDashboards := map[string][]*types.GrafanaDashboard{}
+	categorisedDashboards := map[string][]types.GrafanaDashboard{}
 	for _, dashboard := range dashboards {
 		folderSeen := false
 		for folder := range categorisedDashboards {
@@ -53,10 +53,10 @@ func ListDashboards(ctx context.Context) (map[string][]*types.GrafanaDashboard, 
 		}
 
 		if !folderSeen {
-			categorisedDashboards[dashboard.FolderUID] = []*types.GrafanaDashboard{}
+			categorisedDashboards[dashboard.FolderUID] = []types.GrafanaDashboard{}
 		}
 
-		categorisedDashboards[dashboard.FolderUID] = append(categorisedDashboards[dashboard.FolderUID], &dashboard)
+		categorisedDashboards[dashboard.FolderUID] = append(categorisedDashboards[dashboard.FolderUID], dashboard)
 	}
 
 	return categorisedDashboards, nil

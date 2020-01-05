@@ -16,9 +16,9 @@ import (
 
 func RenderDashboards(ctx context.Context, dashboardURL string, startTime, endTime time.Time, height, width, orgID int) ([]byte, *time.Time, error) {
 	// The formats of dashboard URL and other input params should have already been validated by the caller.
-	// In case dashboard URL does not start with a forward slash, append it.
-	if !strings.HasPrefix(dashboardURL, "/") {
-		dashboardURL = fmt.Sprintf("/%s", dashboardURL)
+	// In case dashboard URL starts with a forward slash, strip it.
+	if strings.HasPrefix(dashboardURL, "/") {
+		dashboardURL = strings.TrimPrefix(dashboardURL, "/")
 	}
 
 	errParams := map[string]string{
@@ -33,6 +33,7 @@ func RenderDashboards(ctx context.Context, dashboardURL string, startTime, endTi
 	// Try cache first, if hit, return
 	ok, entry := getCachedRender(dashboardURL, height, width)
 	if ok {
+		slog.Debug(ctx, "Rendered %s from cache", dashboardURL, errParams)
 		return entry.payload, &entry.timeRendered, nil
 	}
 
@@ -42,14 +43,14 @@ func RenderDashboards(ctx context.Context, dashboardURL string, startTime, endTi
 		config.ConfigGrafanaHost,
 		dashboardURL,
 		orgID,
-		startTime.Unix(),
-		endTime.Unix(),
+		unixTimeWithMilliseconds(startTime),
+		unixTimeWithMilliseconds(endTime),
 		width,
 		height,
 	)
 
 	req := typhon.NewRequest(ctx, http.MethodGet, requestURL, nil)
-	req.Header.Set("Authorization", fmt.Sprint("Bearer: %s", config.ConfigGrafanaAPIKey))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.ConfigGrafanaAPIKey))
 
 	rsp := req.Send().Response()
 	if rsp.Error != nil {
@@ -63,7 +64,15 @@ func RenderDashboards(ctx context.Context, dashboardURL string, startTime, endTi
 		return nil, nil, err
 	}
 
+	slog.Debug(ctx, "Rendered %s without cache", requestURL, errParams)
+
 	// Update the render cache
 	entry = cacheRender(dashboardURL, height, width, rspBytes)
 	return entry.payload, &entry.timeRendered, nil
+}
+
+// Annoying, Grafana timestamp query params are neither Unix() or UnixNano(),
+// but represents milliseconds as three trailling digits in the integer.
+func unixTimeWithMilliseconds(t time.Time) int64 {
+	return t.UnixNano() / int64(time.Millisecond)
 }

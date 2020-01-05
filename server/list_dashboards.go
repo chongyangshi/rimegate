@@ -16,8 +16,6 @@ func serveListDashboards(req typhon.Request) typhon.Response {
 		return typhon.Response{Error: terrors.InternalService("", "Error listing dashboards", nil)}
 	}
 
-	// Returns a plain 200 success response to show that
-	// the server is still alive.
 	return req.Response(&types.ListDashboardsResponse{
 		Dashboards: dashboards,
 	})

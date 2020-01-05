@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -28,7 +27,7 @@ func main() {
 
 	// Initialise server for incoming requests
 	svc := server.Service()
-	srv, err := typhon.Listen(svc, fmt.Sprintf("%s:%s", config.ConfigListenAddr, config.ConfigListenPort))
+	srv, err := typhon.Listen(svc, config.ConfigListenAddr)
 	if err != nil {
 		panic(err)
 	}

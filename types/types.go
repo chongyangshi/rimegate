@@ -9,7 +9,7 @@ type GrafanaDashboard struct {
 }
 
 type ListDashboardsResponse struct {
-	Dashboards map[string][]*GrafanaDashboard `json:"dashboards"`
+	Dashboards map[string][]GrafanaDashboard `json:"dashboards"`
 }
 
 type RenderDashboardRequest struct {
