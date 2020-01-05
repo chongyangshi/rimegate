@@ -13,6 +13,7 @@ type ListDashboardsResponse struct {
 }
 
 type RenderDashboardRequest struct {
+	OrgID        int    `json:"org_id"`
 	DashboardURL string `json:"dashboard_url"`
 	Height       int    `json:"height"`
 	Width        int    `json:"width"`

@@ -44,6 +44,7 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 	}
 
 	errParams := map[string]string{
+		"org_id":        strconv.FormatInt(int64(request.OrgID), 10),
 		"start_time":    request.StartTime,
 		"end_time":      request.EndTime,
 		"height":        strconv.FormatInt(int64(request.Height), 10),
@@ -76,6 +77,12 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 	errParams["start_time"] = startTime.Format(time.RFC3339)
 	errParams["end_time"] = endTime.Format(time.RFC3339)
 
+	// If org ID not specified (or 0), assume to be the default setup of 1.
+	orgID := request.OrgID
+	if orgID < 1 {
+		orgID = 1
+	}
+
 	switch {
 	case !validateDashboardURL(request.DashboardURL):
 		return typhon.Response{Error: terrors.BadRequest("invalid_url", fmt.Sprintf("Requested dashboard URL %s is invalid", request.DashboardURL), errParams)}
@@ -86,7 +93,7 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 	}
 
 	// Input validation done by apiclient
-	render, timeRendered, err := apiclient.RenderDashboards(req, request.DashboardURL, startTime, endTime, request.Height, request.Width)
+	render, timeRendered, err := apiclient.RenderDashboards(req, request.DashboardURL, startTime, endTime, request.Height, request.Width, orgID)
 	if err != nil {
 		slog.Error(req, "Error rendering dashboard: %v", err, errParams)
 		return typhon.Response{Error: terrors.InternalService("", "Error rendering dashboard", errParams)}

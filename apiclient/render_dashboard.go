@@ -14,7 +14,7 @@ import (
 	"github.com/icydoge/rimegate/config"
 )
 
-func RenderDashboards(ctx context.Context, dashboardURL string, startTime, endTime time.Time, height, width int) ([]byte, *time.Time, error) {
+func RenderDashboards(ctx context.Context, dashboardURL string, startTime, endTime time.Time, height, width, orgID int) ([]byte, *time.Time, error) {
 	// The formats of dashboard URL and other input params should have already been validated by the caller.
 	// In case dashboard URL does not start with a forward slash, append it.
 	if !strings.HasPrefix(dashboardURL, "/") {
@@ -26,6 +26,7 @@ func RenderDashboards(ctx context.Context, dashboardURL string, startTime, endTi
 		"end_time":      endTime.Format(time.RFC3339),
 		"height":        strconv.FormatInt(int64(height), 10),
 		"width":         strconv.FormatInt(int64(width), 10),
+		"org_id":        strconv.FormatInt(int64(orgID), 10),
 		"dashboard_url": dashboardURL,
 	}
 
@@ -37,9 +38,10 @@ func RenderDashboards(ctx context.Context, dashboardURL string, startTime, endTi
 
 	// Render in kiosk mode to hide the header panel, which is of no use to the client
 	requestURL := fmt.Sprintf(
-		"%s/render/%s?orgId=1&from=%d&to=%d&width=%d&height=%d&kiosk",
+		"%s/render/%s?orgId=%d&from=%d&to=%d&width=%d&height=%d&kiosk",
 		config.ConfigGrafanaHost,
 		dashboardURL,
+		orgID,
 		startTime.Unix(),
 		endTime.Unix(),
 		width,
