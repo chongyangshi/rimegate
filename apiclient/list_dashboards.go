@@ -13,7 +13,7 @@ import (
 	"github.com/icydoge/rimegate/types"
 )
 
-func ListDashboards(ctx context.Context) (map[string][]types.GrafanaDashboard, error) {
+func ListDashboards(ctx context.Context, auth *types.Auth) (map[string][]types.GrafanaDashboard, error) {
 	// Perform an empty search to list all dashboards the API token has read access to
 	requestURL := fmt.Sprintf("%s/api/%s", config.ConfigGrafanaHost, "search?query=")
 	errParams := map[string]string{
@@ -21,7 +21,7 @@ func ListDashboards(ctx context.Context) (map[string][]types.GrafanaDashboard, e
 	}
 
 	req := typhon.NewRequest(ctx, http.MethodGet, requestURL, nil)
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.ConfigGrafanaAPIKey))
+	req.SetBasicAuth(auth.GrafanaUsername, auth.GrafanaPassword)
 
 	rsp := req.Send().Response()
 	if rsp.Error != nil {

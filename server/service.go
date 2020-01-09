@@ -19,7 +19,7 @@ import (
 func Service() typhon.Service {
 	router := typhon.Router{}
 	router.POST("/render", serveRenderDashboard)
-	router.GET("/dashboards", serveListDashboards)
+	router.POST("/dashboards", serveListDashboards)
 	router.GET("/healthz", serveLiveness)
 	router.GET("/ping", serveLiveness)
 

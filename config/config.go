@@ -10,7 +10,6 @@ import (
 var (
 	ConfigCORSAllowedOrigin    = getConfigFromOSEnv("CORS_ALLOWED_ORIGIN", "*", true)
 	ConfigListenAddr           = getConfigFromOSEnv("LISTEN_ADDR", ":8080", true)
-	ConfigGrafanaAPIKey        = getConfigFromOSEnv("GRAFANA_API_KEY", "", false)
 	ConfigGrafanaHost          = getConfigFromOSEnv("GRAFANA_HOST", "", false)
 	ConfigGrafanaRenderTimeout = getConfigFromOSEnv("GRAFANA_RENDER_TIMEOUT", "1m", true)
 	ConfigGrafanaMaxPeriod     = getConfigFromOSEnv("GRAFANA_MAX_PERIOD", "3h", true)

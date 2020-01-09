@@ -12,9 +12,10 @@ import (
 	"github.com/monzo/typhon"
 
 	"github.com/icydoge/rimegate/config"
+	"github.com/icydoge/rimegate/types"
 )
 
-func RenderDashboards(ctx context.Context, dashboardURL string, startTime, endTime time.Time, height, width, orgID int) ([]byte, *time.Time, error) {
+func RenderDashboards(ctx context.Context, auth *types.Auth, dashboardURL string, startTime, endTime time.Time, height, width, orgID int) ([]byte, *time.Time, error) {
 	// The formats of dashboard URL and other input params should have already been validated by the caller.
 	// In case dashboard URL starts with a forward slash, strip it.
 	if strings.HasPrefix(dashboardURL, "/") {
@@ -50,7 +51,7 @@ func RenderDashboards(ctx context.Context, dashboardURL string, startTime, endTi
 	)
 
 	req := typhon.NewRequest(ctx, http.MethodGet, requestURL, nil)
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.ConfigGrafanaAPIKey))
+	req.SetBasicAuth(auth.GrafanaUsername, auth.GrafanaPassword)
 
 	rsp := req.Send().Response()
 	if rsp.Error != nil {

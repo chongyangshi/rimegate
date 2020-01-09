@@ -11,13 +11,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/icydoge/rimegate/config"
-
 	"github.com/monzo/slog"
 	"github.com/monzo/terrors"
 	"github.com/monzo/typhon"
 
 	"github.com/icydoge/rimegate/apiclient"
+	"github.com/icydoge/rimegate/config"
 	"github.com/icydoge/rimegate/types"
 )
 
@@ -78,7 +77,7 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 	}
 
 	// Input validation done by apiclient
-	render, timeRendered, err := apiclient.RenderDashboards(req, request.DashboardURL, startTime, endTime, request.Height, request.Width, orgID)
+	render, timeRendered, err := apiclient.RenderDashboards(req, request.Auth, request.DashboardURL, startTime, endTime, request.Height, request.Width, orgID)
 	if err != nil {
 		slog.Error(req, "Error rendering dashboard: %v", err, errParams)
 		return typhon.Response{Error: terrors.InternalService("", "Error rendering dashboard", errParams)}
