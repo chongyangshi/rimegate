@@ -100,6 +100,6 @@ func (b basicError) toSerialized(statusCode int) ([]byte, error) {
 		exportedError.Message = strconv.FormatInt(int64(statusCode), 10)
 	}
 
-	seralized, err := json.Marshal(b)
+	seralized, err := json.Marshal(exportedError)
 	return seralized, err
 }
