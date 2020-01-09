@@ -39,12 +39,14 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 	requestBytes, err := req.BodyBytes(false)
 	if err != nil {
 		slog.Error(req, "Error reading request bytes: %v", err)
+		return typhon.Response{Error: err}
 	}
 
 	request := types.RenderDashboardRequest{}
 	err = json.Unmarshal(requestBytes, &request)
 	if err != nil {
 		slog.Error(req, "Error unmarshaling request: %v", err)
+		return typhon.Response{Error: err}
 	}
 
 	errParams := map[string]string{

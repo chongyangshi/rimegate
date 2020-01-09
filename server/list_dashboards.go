@@ -15,12 +15,14 @@ func serveListDashboards(req typhon.Request) typhon.Response {
 	requestBytes, err := req.BodyBytes(false)
 	if err != nil {
 		slog.Error(req, "Error reading request bytes: %v", err)
+		return typhon.Response{Error: err}
 	}
 
 	request := types.ListDashboardsRequest{}
 	err = json.Unmarshal(requestBytes, &request)
 	if err != nil {
 		slog.Error(req, "Error unmarshaling request: %v", err)
+		return typhon.Response{Error: err}
 	}
 
 	dashboards, err := apiclient.ListDashboards(req, request.Auth)
