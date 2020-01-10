@@ -53,11 +53,11 @@ button {
     color: white;
     border: none;
     cursor: pointer;
-    max-width: 50%;
+    max-width: 80%;
     display: block;
     margin: auto;
     padding: 14px 20px;
-    font-size: 2em;
+    font-size: 1.5em;
 }
 
 table {
@@ -122,4 +122,12 @@ div.error-text {
 
 .status-disconnected {
     background-color: #f08080;
+}
+
+.loader {
+    display: inline;
+    margin-left: 2em;
+    padding: 0;
+    font-size: 3em;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
