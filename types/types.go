@@ -1,5 +1,10 @@
 package types
 
+type Organization struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 type GrafanaDashboard struct {
 	UID         string `json:"uid"`
 	Title       string `json:"title"`
@@ -33,4 +38,10 @@ type RenderDashboardRequest struct {
 	Width        int    `json:"width"`
 	StartTime    string `json:"start_time"` // RFC3339
 	EndTime      string `json:"end_time"`   // RFC3339
+	AutoFitPanel bool   `json:"auto_fit_panel"`
+}
+
+type RenderDashboardResponse struct {
+	Payload      string `json:"payload"`       // Base64
+	RenderedTime string `json:"rendered_time"` // RFC3339
 }

@@ -1,12 +1,10 @@
 package server
 
 import (
-	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"regexp"
 	"strconv"
 	"time"
@@ -63,10 +61,15 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 	errParams["start_time"] = startTime.Format(time.RFC3339)
 	errParams["end_time"] = endTime.Format(time.RFC3339)
 
-	// If org ID not specified (or 0), assume to be the default setup of 1.
+	// If org ID not specified (or 0), find the current org ID.
 	orgID := request.OrgID
 	if orgID < 1 {
-		orgID = 1
+		org, err := apiclient.GetCurrentOrganization(req, request.Auth)
+		if err != nil {
+			slog.Error(req, "Cannot find current Grafana organization: %v", err, errParams)
+			return typhon.Response{Error: terrors.PreconditionFailed("cannot_find_org", "Cannot find current Grafana organization", errParams)}
+		}
+		orgID = org.ID
 	}
 
 	switch {
@@ -78,7 +81,7 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 		return typhon.Response{Error: terrors.BadRequest("bad_width", fmt.Sprintf("Requested width (%d) is below 400, which is unlikely to produce useful render", request.Width), errParams)}
 	}
 
-	render, timeRendered, err := apiclient.RenderDashboards(req, request.Auth, request.DashboardURL, startTime, endTime, request.Height, request.Width, orgID)
+	render, timeRendered, err := apiclient.RenderDashboards(req, request.Auth, request.DashboardURL, startTime, endTime, request.Height, request.Width, orgID, request.AutoFitPanel)
 	if err != nil {
 		// Proxy Unauthorized responses if credentials supplied are invalid.
 		if terrors.PrefixMatches(err, "grafana_401") {
@@ -89,11 +92,11 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 		return typhon.Response{Error: terrors.InternalService("", "Error rendering dashboard", errParams)}
 	}
 
-	rsp := typhon.NewResponse(req)
-	rsp.StatusCode = http.StatusOK
-	rsp.Header.Set("X-Time-Rendered", timeRendered.Format(time.RFC3339))
-	rsp.Body = ioutil.NopCloser(bytes.NewReader(render))
-	return rsp
+	return req.Response(&types.RenderDashboardResponse{
+		Payload:      base64.StdEncoding.EncodeToString(render),
+		RenderedTime: timeRendered.Format(time.RFC3339),
+	})
+
 }
 
 func validateDashboardURL(dashboardURL string) bool {

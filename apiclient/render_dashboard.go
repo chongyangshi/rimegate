@@ -16,7 +16,7 @@ import (
 	"github.com/icydoge/rimegate/types"
 )
 
-func RenderDashboards(ctx context.Context, auth *types.Auth, dashboardURL string, startTime, endTime time.Time, height, width, orgID int) ([]byte, *time.Time, error) {
+func RenderDashboards(ctx context.Context, auth *types.Auth, dashboardURL string, startTime, endTime time.Time, height, width, orgID int, fitPanel bool) ([]byte, *time.Time, error) {
 	// The formats of dashboard URL and other input params should have already been validated by the caller.
 	// In case dashboard URL starts with a forward slash, strip it.
 	if strings.HasPrefix(dashboardURL, "/") {
