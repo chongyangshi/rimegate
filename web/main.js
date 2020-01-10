@@ -7,6 +7,7 @@ var grafanaPassword = "";
 var connected = false;
 var dashboardURL = "";
 var dashboardTitle = "";
+var autoFitPanel = true;
 
 if (window.location.hostname == undefined || window.location.hostname == "") {
     // For local running, served by browser from file.
@@ -124,8 +125,17 @@ function listDashboards() {
 function launchDashboard(e) {
     dashboardURL = e.target.getAttribute("data-dashboard-url");
     dashboardTitle = e.target.getAttribute("data-dashboard-title");
+    document.getElementsByClassName("dashboard-selection")[0].style.display = "none";
     refreshDashboard();
     setInterval(refreshDashboard, DASHBOARD_REFRESH_INTERVAL * 1000);
+}
+
+function enableAutoFitPanelCheckbox() {
+    document.getElementsByClassName("fit-panel")[0].style.display = "inline";
+    document.getElementById("PANELBOX").addEventListener('change', function (e) {
+        autoFitPanel = e.target.checked;
+        refreshDashboard();
+    });
 }
 
 function login() {
@@ -151,7 +161,7 @@ function refreshDashboard() {
         "height": height,
         "grafana_username": grafanaUsername,
         "grafana_password": grafanaPassword,
-        "auto_fit_panel": true,
+        "auto_fit_panel": autoFitPanel,
     }));
 
     function done() {
@@ -166,8 +176,10 @@ function refreshDashboard() {
         document.getElementById("RENDER").src = "data:image/png;base64," + response.payload;
         document.getElementById("RENDER").style.display = "block";
         document.getElementById("INSTRUCTION").innerText = dashboardTitle;
-        document.getElementById("TICKER").innerText = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
+        document.getElementById("TICKER").innerText = String(time.getHours()).padStart(2, "0") + ":" + String(time.getMinutes()).padStart(2, "0") + ":" + String(time.getSeconds()).padStart(2, "0");
         console.log("Rendered payload " + response.payload.length + " for dashboard " + dashboardTitle + " at " + response.rendered_time);
+
+        enableAutoFitPanelCheckbox();
     }
 }
 

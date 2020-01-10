@@ -33,7 +33,7 @@ func RenderDashboards(ctx context.Context, auth *types.Auth, dashboardURL string
 	}
 
 	// Try cache first, if hit, return
-	ok, entry := getCachedRender(dashboardURL, height, width)
+	ok, entry := getCachedRender(dashboardURL, height, width, fitPanel)
 	if ok {
 		slog.Debug(ctx, "Rendered %s from cache", dashboardURL, errParams)
 		return entry.payload, &entry.timeRendered, nil
@@ -50,6 +50,10 @@ func RenderDashboards(ctx context.Context, auth *types.Auth, dashboardURL string
 		width,
 		height,
 	)
+
+	if fitPanel {
+		requestURL = fmt.Sprintf("%s&autofitpanels", requestURL)
+	}
 
 	req := typhon.NewRequest(ctx, http.MethodGet, requestURL, nil)
 	req.SetBasicAuth(auth.GrafanaUsername, auth.GrafanaPassword)
@@ -75,7 +79,7 @@ func RenderDashboards(ctx context.Context, auth *types.Auth, dashboardURL string
 	slog.Debug(ctx, "Rendered %s without cache", requestURL, errParams)
 
 	// Update the render cache
-	entry = cacheRender(dashboardURL, height, width, rspBytes)
+	entry = cacheRender(dashboardURL, height, width, fitPanel, rspBytes)
 	return entry.payload, &entry.timeRendered, nil
 }
 

@@ -12,6 +12,7 @@ import (
 // how many dashboards on how many resolutions are used by clients.
 
 type cacheEntry struct {
+	autoFitPanel bool
 	timeRendered time.Time
 	payload      []byte
 }
@@ -21,11 +22,11 @@ var (
 	dashboardCaches = map[string]cacheEntry{}
 )
 
-func cacheKey(dashboardURL string, height, width int) string {
-	return fmt.Sprintf("%s:%d:%d", dashboardURL, height, width)
+func cacheKey(dashboardURL string, height, width int, autoFitPanel bool) string {
+	return fmt.Sprintf("%s:%d:%d:%t", dashboardURL, height, width, autoFitPanel)
 }
 
-func cacheRender(dashboardURL string, height, width int, dashboardPayload []byte) cacheEntry {
+func cacheRender(dashboardURL string, height, width int, autoFitPanel bool, dashboardPayload []byte) cacheEntry {
 	cacheMutex.Lock()
 	defer cacheMutex.Unlock()
 
@@ -34,15 +35,15 @@ func cacheRender(dashboardURL string, height, width int, dashboardPayload []byte
 		payload:      dashboardPayload,
 	}
 
-	dashboardCaches[cacheKey(dashboardURL, height, width)] = entry
+	dashboardCaches[cacheKey(dashboardURL, height, width, autoFitPanel)] = entry
 	return entry
 }
 
-func getCachedRender(dashboardURL string, height, width int) (bool, cacheEntry) {
+func getCachedRender(dashboardURL string, height, width int, autoFitPanel bool) (bool, cacheEntry) {
 	cacheMutex.RLock()
 	defer cacheMutex.RUnlock()
 
-	entry, ok := dashboardCaches[cacheKey(dashboardURL, height, width)]
+	entry, ok := dashboardCaches[cacheKey(dashboardURL, height, width, autoFitPanel)]
 	if !ok {
 		// Cache miss, needs to re-render
 		return false, cacheEntry{}
