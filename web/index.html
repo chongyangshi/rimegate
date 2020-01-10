@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-    <head>
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Rimegate</title>
@@ -17,14 +18,39 @@
             <h2 id="STATUS">Disconnected</h2>
         </div>
         <div class="header-middle">
-            <h2 id="DASHBOARD">Select Dashboard</h2>
+            <h2 id="INSTRUCTION">Login</h2>
         </div>
     </div>
     <div class="box center-box">
-        <img src="data:image/png;base64, " alt="Connection Failed" hidden>
-        <div class="dashboard-selection">Test</div>
+        <img src="" alt="Connection Failed" hidden>
+        <div class="error-text" hidden>
+            <p></p>
+        </div>
+        <div class="login">
+            <div class="input-wrapper">
+                <input type="text" placeholder="Grafana Username" name="grafana_username" required>
+            </div>
+            <div class="input-wrapper">
+                <input type="password" placeholder="Grafana Password" name="grafana_password" required>
+            </div>
+            <button type="button" id="LOGIN">Grafana Login</button>
+        </div>
+        <div class="dashboard-selection" hidden>
+            <table id="DASHBOARDS">
+                <thead>
+                    <tr>
+                        <th>Folder</th>
+                        <th>Dashboard</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </body>
 <script type="application/javascript" src="./main.js"></script>
+
 </html>

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/monzo/slog"
+	"github.com/monzo/terrors"
 	"github.com/monzo/typhon"
 
 	"github.com/icydoge/rimegate/config"
@@ -32,6 +33,12 @@ func ListDashboards(ctx context.Context, auth *types.Auth) (map[string][]types.G
 	rspBytes, err := rsp.BodyBytes(true)
 	if err != nil {
 		slog.Error(ctx, "Error reading response: %v", err, errParams)
+		return nil, err
+	}
+
+	if rsp.StatusCode >= 400 {
+		err := terrors.WrapWithCode(fmt.Errorf("%s", string(rspBytes[:])), errParams, fmt.Sprintf("grafana_%d", rsp.StatusCode))
+		slog.Error(ctx, "Grafana returned error: %s", err, errParams)
 		return nil, err
 	}
 

@@ -78,9 +78,13 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 		return typhon.Response{Error: terrors.BadRequest("bad_width", fmt.Sprintf("Requested width (%d) is below 400, which is unlikely to produce useful render", request.Width), errParams)}
 	}
 
-	// Input validation done by apiclient
 	render, timeRendered, err := apiclient.RenderDashboards(req, request.Auth, request.DashboardURL, startTime, endTime, request.Height, request.Width, orgID)
 	if err != nil {
+		// Proxy Unauthorized responses if credentials supplied are invalid.
+		if terrors.PrefixMatches(err, "grafana_401") {
+			return typhon.Response{Error: terrors.Unauthorized("", "Grafana username or password incorrect", nil)}
+		}
+
 		slog.Error(req, "Error rendering dashboard: %v", err, errParams)
 		return typhon.Response{Error: terrors.InternalService("", "Error rendering dashboard", errParams)}
 	}

@@ -27,6 +27,11 @@ func serveListDashboards(req typhon.Request) typhon.Response {
 
 	dashboards, err := apiclient.ListDashboards(req, request.Auth)
 	if err != nil {
+		// Proxy Unauthorized responses if credentials supplied are invalid.
+		if terrors.PrefixMatches(err, "grafana_401") {
+			return typhon.Response{Error: terrors.Unauthorized("", "Grafana username or password incorrect", nil)}
+		}
+
 		slog.Error(req, "Error listing dashboards: %v", err)
 		return typhon.Response{Error: terrors.InternalService("", "Error listing dashboards", nil)}
 	}

@@ -64,6 +64,7 @@ func CORSFilter(req typhon.Request, svc typhon.Service) typhon.Response {
 		rsp := typhon.NewResponse(req)
 		rsp.Header.Set("Access-Control-Allow-Origin", config.ConfigCORSAllowedOrigin)
 		rsp.Header.Set("Access-Control-Allow-Methods", "GET, PUT, POST")
+		rsp.Header.Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 		rsp.Body = ioutil.NopCloser(bytes.NewReader([]byte("ok")))
 		rsp.StatusCode = http.StatusOK
 		return rsp
@@ -72,6 +73,7 @@ func CORSFilter(req typhon.Request, svc typhon.Service) typhon.Response {
 	rsp := svc(req)
 	rsp.Header.Set("Access-Control-Allow-Origin", config.ConfigCORSAllowedOrigin)
 	rsp.Header.Set("Access-Control-Allow-Methods", "GET, PUT, POST")
+	rsp.Header.Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 
 	return rsp
 }
