@@ -27,6 +27,36 @@ function init() {
     });
 }
 
+// Borrowed from https://stackoverflow.com/a/11318669 comment by https://stackoverflow.com/users/528263/crashthatch
+var dateRegex = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})\.?(\d{3})?(?:(?:([+-]\d{2}):?(\d{2}))|Z)?$/;
+function parseISODate(d) {
+    var m = dateRegex.exec(d);
+    //milliseconds are optional.
+    if (m[7] === undefined) {
+        m[7] = 0;
+    }
+
+    //if timezone is undefined, it must be Z or nothing (otherwise the group would have captured).
+    if (m[8] === undefined && m[9] === undefined) {
+        //Use UTC.
+        m[8] = 0;
+        m[9] = 0;
+    }
+
+    var year = +m[1];
+    var month = +m[2];
+    var day = +m[3];
+    var hour = +m[4];
+    var minute = +m[5];
+    var second = +m[6];
+    var msec = +m[7];
+    var tzHour = +m[8];
+    var tzMin = +m[9];
+    var tzOffset = tzHour * 60 + tzMin;
+
+    return new Date(year, month - 1, day, hour, minute - tzOffset, second, msec);
+}
+
 function ping() {
     var request = new XMLHttpRequest();
     request.onreadystatechange = done;
@@ -171,48 +201,19 @@ function refreshDashboard() {
 
         var response = JSON.parse(request.responseText);
 
-        time = parseISODate(response.rendered_time);
-
         document.getElementById("RENDER").src = "data:image/png;base64," + response.payload;
         document.getElementById("RENDER").style.display = "block";
         document.getElementById("INSTRUCTION").innerText = dashboardTitle;
+        document.getElementById("TICKER").innerText = response.utc_wall_clock;
+
+        // Above is the fallback if a local time cannot be parsed from RFC3339.
+        time = parseISODate(response.rendered_time);
         document.getElementById("TICKER").innerText = String(time.getHours()).padStart(2, "0") + ":" + String(time.getMinutes()).padStart(2, "0") + ":" + String(time.getSeconds()).padStart(2, "0");
+
         console.log("Rendered payload " + response.payload.length + " for dashboard " + dashboardTitle + " at " + response.rendered_time);
 
         enableAutoFitPanelCheckbox();
     }
-}
-
-// Borrowed from https://stackoverflow.com/a/11318669 comment by https://stackoverflow.com/users/528263/crashthatch
-var dateRegex = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})\.?(\d{3})?(?:(?:([+-]\d{2}):?(\d{2}))|Z)?$/;
-function parseISODate(d) {
-    var m = dateRegex.exec(d);
-    //milliseconds are optional.
-    if (m[7] === undefined) {
-        m[7] = 0;
-    }
-
-    //if timezone is undefined, it must be Z or nothing (otherwise the group would have captured).
-    if (m[8] === undefined && m[9] === undefined) {
-        //Use UTC.
-        m[8] = 0;
-        m[9] = 0;
-    }
-
-    var year = +m[1];
-    var month = +m[2];
-    var day = +m[3];
-    var hour = +m[4];
-    var minute = +m[5];
-    var second = +m[6];
-    var msec = +m[7];
-    var tzHour = +m[8];
-    var tzMin = +m[9];
-    var tzOffset = tzHour * 60 + tzMin;
-
-    //console.log(year+', '+(month - 1)+', '+day+', '+hour+', '+(minute - tzOffset)+', '+second+', '+msec);
-
-    return new Date(year, month - 1, day, hour, minute - tzOffset, second, msec);
 }
 
 window.onload = init;

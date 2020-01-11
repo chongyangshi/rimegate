@@ -92,11 +92,13 @@ func serveRenderDashboard(req typhon.Request) typhon.Response {
 		return typhon.Response{Error: terrors.InternalService("", "Error rendering dashboard", errParams)}
 	}
 
+	h, m, s := timeRendered.Clock()
+
 	return req.Response(&types.RenderDashboardResponse{
 		Payload:      base64.StdEncoding.EncodeToString(render),
 		RenderedTime: timeRendered.Format(time.RFC3339),
+		UTCWallClock: fmt.Sprintf("%02d:%02d:%02d", h, m, s),
 	})
-
 }
 
 func validateDashboardURL(dashboardURL string) bool {

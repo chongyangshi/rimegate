@@ -42,6 +42,7 @@ type RenderDashboardRequest struct {
 }
 
 type RenderDashboardResponse struct {
-	Payload      string `json:"payload"`       // Base64
-	RenderedTime string `json:"rendered_time"` // RFC3339
+	Payload      string `json:"payload"`        // Base64
+	RenderedTime string `json:"rendered_time"`  // RFC3339
+	UTCWallClock string `json:"utc_wall_clock"` // A backend-supplied UTC wall clock for clients unable to parse RFC3339 in-browser.
 }
