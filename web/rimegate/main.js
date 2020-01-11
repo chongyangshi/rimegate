@@ -1,7 +1,7 @@
 REACHABILITY_CHECK_INVERVAL = 30;
 DASHBOARD_REFRESH_INTERVAL = 30;
 
-var apiBase = "https://rimegate.dogelink.com";
+var apiBase = "API_BASE";
 var grafanaUsername = "";
 var grafanaPassword = "";
 var connected = false;

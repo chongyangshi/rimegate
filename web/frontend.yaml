@@ -24,7 +24,10 @@ spec:
         app: web-render-dogelink-com
     spec:
       containers:
-      - image: icydoge/web:web-rimegate-dogelink-com-fcf1c68
+      - env:
+        - name: API_BASE
+          value: https://rimegate.dogelink.com
+        image: icydoge/web:web-rimegate-dogelink-com-fcf1c68
         imagePullPolicy: IfNotPresent
         name: nginx
         ports:

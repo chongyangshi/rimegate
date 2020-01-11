@@ -58,4 +58,6 @@ ADD  rimegate /etc/nginx/web
 VOLUME ["/var/cache/nginx"]
 EXPOSE 80
 
-CMD ["nginx"]
+ADD init.sh /
+RUN chmod +x /init.sh
+CMD ["/init.sh"]

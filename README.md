@@ -18,13 +18,10 @@ Rimegate is half-finished in terms of providing for general use, as there is sti
 
 * Make sure your Grafana is set up with [remote rendering](https://grafana.com/docs/grafana/latest/administration/image_rendering/#remote-rendering-service), which is essentially an officially-packaged headless Chromium serving requests from the main Grafana instance
 * Fork this repository
-* Adapt [backend.yaml](http://github.com/icydoge/rimegate/blob/master/backend.yaml), update `GRAFANA_HOST` if your Grafana runs on a different hostname and port (in my case it runs in Kubernetes and has a cluster DNS name)
+* In [backend.yaml](http://github.com/icydoge/rimegate/blob/master/backend.yaml), update `GRAFANA_HOST` if your Grafana runs on a different hostname and port (in my case it runs in Kubernetes and has a cluster DNS name)
 * Deploy [backend.yaml](http://github.com/icydoge/rimegate/blob/master/backend.yaml) to spawn the backend Rimegate service in Kubernetes
 * Expose the backend service somehow through a load balancer on the edge of your cluster (Rimegate proxies Grafana basic auth credentials for authentication, it is otherwise unprivileged when exposed)
-* Adapt [web/rimegate/main.js](https://github.com/icydoge/rimegate/blob/master/web/rimegate/main.js) and update `apiBase` to be your Rimegate API base URL exposed above
-* Adapt [Makefile](http://github.com/icydoge/rimegate/blob/master/Makefile) and update `WEB_REPOSITORY` to be a Docker repository you can push to and pull from
-* Run `make web` to build and push the frontend image
-* With the image built and pushed, update the image in [web/frontend.yaml](https://github.com/icydoge/rimegate/blob/master/web/frontend.yaml) and change the service port as necessary
+* Update the `API_BASE` in [web/frontend.yaml](https://github.com/icydoge/rimegate/blob/master/web/frontend.yaml) to be your Rimegate backend API host.
 * Deploy [web/frontend.yaml](https://github.com/icydoge/rimegate/blob/master/web/frontend.yaml) to spawn the front Rimegate web service in Kubernetes
 * Expose the frontend service somehow through a load balancer on the edge of your cluster (image is unprivileged)
 
