@@ -60,20 +60,18 @@ func ClientErrorFilter(req typhon.Request, svc typhon.Service) typhon.Response {
 }
 
 func CORSFilter(req typhon.Request, svc typhon.Service) typhon.Response {
+	var rsp typhon.Response
 	if req.Method == http.MethodOptions {
-		rsp := typhon.NewResponse(req)
-		rsp.Header.Set("Access-Control-Allow-Origin", config.ConfigCORSAllowedOrigin)
-		rsp.Header.Set("Access-Control-Allow-Methods", "GET, PUT, POST")
-		rsp.Header.Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+		rsp = typhon.NewResponse(req)
 		rsp.Body = ioutil.NopCloser(bytes.NewReader([]byte("ok")))
 		rsp.StatusCode = http.StatusOK
-		return rsp
+	} else {
+		rsp = svc(req)
 	}
 
-	rsp := svc(req)
 	rsp.Header.Set("Access-Control-Allow-Origin", config.ConfigCORSAllowedOrigin)
 	rsp.Header.Set("Access-Control-Allow-Methods", "GET, PUT, POST")
-	rsp.Header.Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	rsp.Header.Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Accept-Langauge, Content-Language")
 
 	return rsp
 }
