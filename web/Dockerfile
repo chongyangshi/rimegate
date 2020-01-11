@@ -52,12 +52,12 @@ RUN apk --update add --virtual build_deps build-base zlib-dev pcre-dev libressl-
     && apk del build_deps && rm /var/cache/apk/*
 
 COPY nginx.conf /etc/nginx/
+COPY init.sh /
+RUN chmod +x /init.sh
 ADD  conf.d /etc/nginx/conf.d
 ADD  rimegate /etc/nginx/web
 
 VOLUME ["/var/cache/nginx"]
 EXPOSE 80
 
-ADD init.sh /
-RUN chmod +x /init.sh
 CMD ["/init.sh"]
