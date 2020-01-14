@@ -8,6 +8,7 @@ var connected = false;
 var dashboardURL = "";
 var dashboardTitle = "";
 var autoFitPanel = true;
+var autoFitPanelEnabled = false;
 
 if (window.location.hostname == undefined || window.location.hostname == "") {
     // For local running, served by browser from file.
@@ -25,36 +26,6 @@ function init() {
             login();
         }
     });
-}
-
-// Borrowed from https://stackoverflow.com/a/11318669 comment by https://stackoverflow.com/users/528263/crashthatch
-var dateRegex = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})\.?(\d{3})?(?:(?:([+-]\d{2}):?(\d{2}))|Z)?$/;
-function parseISODate(d) {
-    var m = dateRegex.exec(d);
-    //milliseconds are optional.
-    if (m[7] === undefined) {
-        m[7] = 0;
-    }
-
-    //if timezone is undefined, it must be Z or nothing (otherwise the group would have captured).
-    if (m[8] === undefined && m[9] === undefined) {
-        //Use UTC.
-        m[8] = 0;
-        m[9] = 0;
-    }
-
-    var year = +m[1];
-    var month = +m[2];
-    var day = +m[3];
-    var hour = +m[4];
-    var minute = +m[5];
-    var second = +m[6];
-    var msec = +m[7];
-    var tzHour = +m[8];
-    var tzMin = +m[9];
-    var tzOffset = tzHour * 60 + tzMin;
-
-    return new Date(year, month - 1, day, hour, minute - tzOffset, second, msec);
 }
 
 function ping() {
@@ -162,10 +133,14 @@ function launchDashboard(e) {
 
 function enableAutoFitPanelCheckbox() {
     document.getElementsByClassName("fit-panel")[0].style.display = "inline";
-    document.getElementById("PANELBOX").addEventListener('change', function (e) {
-        autoFitPanel = e.target.checked;
-        refreshDashboard();
-    });
+
+    if (!autoFitPanelEnabled) {
+        document.getElementById("PANELBOX").addEventListener('change', function (e) {
+            autoFitPanel = e.target.checked;
+            refreshDashboard();
+        });
+        autoFitPanelEnabled = true;
+    }
 }
 
 function login() {
@@ -205,10 +180,6 @@ function refreshDashboard() {
         document.getElementById("RENDER").style.display = "block";
         document.getElementById("INSTRUCTION").innerText = dashboardTitle;
         document.getElementById("TICKER").innerText = response.utc_wall_clock;
-
-        // Above is the fallback if a local time cannot be parsed from RFC3339.
-        time = parseISODate(response.rendered_time);
-        document.getElementById("TICKER").innerText = String(time.getHours()).padStart(2, "0") + ":" + String(time.getMinutes()).padStart(2, "0") + ":" + String(time.getSeconds()).padStart(2, "0");
 
         console.log("Rendered payload " + response.payload.length + " for dashboard " + dashboardTitle + " at " + response.rendered_time);
 
