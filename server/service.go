@@ -20,6 +20,7 @@ func Service() typhon.Service {
 	router := typhon.Router{}
 	router.POST("/render", serveRenderDashboard)
 	router.POST("/dashboards", serveListDashboards)
+	router.GET("/grafana-credentials-required", serveGrafanaCredentialsRequired)
 	router.GET("/healthz", serveLiveness)
 	router.GET("/ping", serveLiveness)
 

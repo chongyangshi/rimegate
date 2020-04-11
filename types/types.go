@@ -46,3 +46,7 @@ type RenderDashboardResponse struct {
 	RenderedTime string `json:"rendered_time"`  // RFC3339
 	UTCWallClock string `json:"utc_wall_clock"` // A backend-supplied UTC wall clock for clients unable to parse RFC3339 in-browser.
 }
+
+type GrafanaCredentialsRequiredResponse struct {
+	Required bool `json:"required"`
+}

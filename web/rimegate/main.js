@@ -18,6 +18,9 @@ if (window.location.hostname == undefined || window.location.hostname == "") {
 function init() {
     ping();
     setInterval(ping, REACHABILITY_CHECK_INVERVAL * 1000);
+    if (canSkipLogin() === true) {
+        listDashboards();
+    }
 
     document.getElementById("LOGIN").addEventListener("click", login);
     document.getElementsByName("grafana_password")[0].addEventListener("keyup", function () {
@@ -26,6 +29,22 @@ function init() {
             login();
         }
     });
+}
+
+function canSkipLogin() {
+    // Blocking request, we should check this before deciding what to present.
+    var request = new XMLHttpRequest();
+    request.open('GET', apiBase + "/grafana-credentials-required", false); 
+    request.send(null);
+
+    if (request.status === 200) {
+        var response = JSON.parse(request.responseText);
+        console.log("Server requires credentials: " + response.required.toString());
+        return true
+    }
+    
+    console.log("Error checking if server requires credentials, defaulting to login mode.");
+    return false
 }
 
 function ping() {
