@@ -16,7 +16,25 @@ As a result, I wrote Rimegate as a Go microservice, serving a custom API interfa
 
 ## How to use it
 
-Rimegate is only semi-ready in terms of providing for general use, and may be particularly difficult to deploy outside Docker/Kubernetes. If you are interested in trying it, however:
+Rimegate is only semi-ready in terms of providing for general use, and may be particularly difficult to deploy outside Docker/Kubernetes. If you are interested in trying it, please follow steps below.
+
+### Decide how to authenticate clients
+
+There are two options you can authenticate clients, which require different credential setups:
+* **Grafana username/password**: Rimegate will pass on Grafana credentials supplied by the client to Grafana for authentication, these will need to be supplied by the user in a login page served by the front-end. 
+    * Set up a `Viewer` role user in Grafana admin;
+    * **If using Kubernetes**, in [backend.yaml](http://github.com/icydoge/rimegate/blob/master/backend.yaml), remove the environment variable `GRAFANA_API_TOKEN` in the container `env`.
+* **Grafana static API token + mTLS**: Rimegate will not attempt to authenticate clients, and instead rely on a static Grafana API token to authenticate itself with Grafana.
+    * Set up a `Viewer` role api key in Grafana admin, with a sufficiently long duration of validity;
+    * Set the `GRAFANA_API_TOKEN` environment variable in Rimegate's execution environment to be this static API key, if you are using Kubernetes, this can instead be supplied in a Kubernetes Secret called `rimegate-grafana-api-token` with key name also `rimegate-grafana-api-token`. You can change the secret/key name in [backend.yaml](http://github.com/icydoge/rimegate/blob/master/backend.yaml);
+    * Now set up mTLS. The remaining steps are optional, but without them, anyone will be able to use the Rimegate backend as a proxy to query your Grafana, which is especially dangerous if your api key is not read-only;
+    * Run [`./p12-ca.sh`](http://github.com/icydoge/rimegate/blob/master/p12-ca.sh) to generate a self-signed root CA for Rimegate; upload the root CA certificate (but not the key) to your revese proxy web server;
+    * Run [`./p12-client.sh <client-name>`](http://github.com/icydoge/rimegate/blob/master/p12-ca.sh) to generate a client certificate for the given `<client-name>`; transfer the resulting `.p12` file to your Rimegate display device by email or a web server, and install it;
+    * In your reverse proxy (such as NGINX) serving Rimegate front-end, set up TLS client authentication with the root CA above.
+
+### Deploy Rimegate
+
+Once the appropriate authentication method above has been set up, you are now ready to deploy Rimegate:
 
 * Make sure your Grafana is set up with [remote rendering](https://grafana.com/docs/grafana/latest/administration/image_rendering/#remote-rendering-service), which is essentially an officially-packaged headless Chromium serving requests from the main Grafana instance
 * Clone this repository
