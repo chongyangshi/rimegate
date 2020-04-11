@@ -11,6 +11,7 @@ import (
 	"github.com/monzo/typhon"
 
 	"github.com/icydoge/rimegate/config"
+	"github.com/icydoge/rimegate/types"
 )
 
 var cacheValidity time.Duration
@@ -56,4 +57,17 @@ func Init(ctx context.Context) error {
 	typhon.Client = client
 
 	return nil
+}
+
+func setAuthenticationCredentials(req *typhon.Request, auth *types.Auth) (*typhon.Request, error) {
+	switch {
+	case config.ConfigGrafanaAPIToken != "":
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.ConfigGrafanaAPIToken))
+	case auth != nil:
+		// Empty username / password supported.
+		req.SetBasicAuth(auth.GrafanaUsername, auth.GrafanaPassword)
+	}
+
+	// No credential is supported, depending on Grafana authentication mode
+	return req
 }

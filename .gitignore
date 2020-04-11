@@ -13,3 +13,9 @@
 
 # Local run script file with credentials
 run_local.sh
+
+# Local CA and client certs and keys
+*.pem
+*.p12
+*.srl
+tmp.cnf

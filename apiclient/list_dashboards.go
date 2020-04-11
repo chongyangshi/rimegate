@@ -22,7 +22,7 @@ func ListDashboards(ctx context.Context, auth *types.Auth) (map[string][]types.G
 	}
 
 	req := typhon.NewRequest(ctx, http.MethodGet, requestURL, nil)
-	req.SetBasicAuth(auth.GrafanaUsername, auth.GrafanaPassword)
+	setAuthenticationCredentials(auth.GrafanaUsername, auth.GrafanaPassword)
 
 	rsp := req.Send().Response()
 	if rsp.Error != nil {
