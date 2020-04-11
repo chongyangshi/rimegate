@@ -2,6 +2,7 @@ package apiclient
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"net/url"
@@ -59,7 +60,7 @@ func Init(ctx context.Context) error {
 	return nil
 }
 
-func setAuthenticationCredentials(req *typhon.Request, auth *types.Auth) (*typhon.Request, error) {
+func setAuthenticationCredentials(req *typhon.Request, auth *types.Auth) *typhon.Request {
 	switch {
 	case config.ConfigGrafanaAPIToken != "":
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", config.ConfigGrafanaAPIToken))

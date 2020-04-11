@@ -56,7 +56,7 @@ func RenderDashboards(ctx context.Context, auth *types.Auth, dashboardURL string
 	}
 
 	req := typhon.NewRequest(ctx, http.MethodGet, requestURL, nil)
-	setAuthenticationCredentials(auth.GrafanaUsername, auth.GrafanaPassword)
+	setAuthenticationCredentials(&req, auth)
 
 	rsp := req.Send().Response()
 	if rsp.Error != nil {
