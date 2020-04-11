@@ -12,7 +12,7 @@ import (
 // on a static Grafana API token instead.
 func serveGrafanaCredentialsRequired(req typhon.Request) typhon.Response {
 	rsp := types.GrafanaCredentialsRequiredResponse{
-		Required: config.ConfigGrafanaAPIToken != "",
+		Required: config.ConfigGrafanaAPIToken == "",
 	}
 
 	return req.Response(&rsp)
