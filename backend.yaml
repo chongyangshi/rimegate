@@ -33,7 +33,7 @@ spec:
             secretKeyRef:
               name: rimegate-grafana-api-token
               key: rimegate-grafana-api-token
-        image: icydoge/web:rimegate-cef3433
+        image: icydoge/web:rimegate-0824ffb
         imagePullPolicy: IfNotPresent
         name: rimegate
         ports:

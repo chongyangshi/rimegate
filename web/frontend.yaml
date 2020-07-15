@@ -27,7 +27,7 @@ spec:
       - env:
         - name: API_BASE
           value: https://rimegate.dogelink.com
-        image: icydoge/web:web-rimegate-dogelink-com-cef3433
+        image: icydoge/web:web-rimegate-dogelink-com-0824ffb
         imagePullPolicy: IfNotPresent
         name: nginx
         ports:
