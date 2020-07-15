@@ -3,4 +3,4 @@
 export LISTEN_ADDR="127.0.0.1:18080"
 export GRAFANA_HOST="https://changeme.example.com"
 
-go run github.com/icydoge/rimegate
+go run github.com/chongyangshi/rimegate

@@ -11,8 +11,8 @@ import (
 	"github.com/monzo/slog"
 	"github.com/monzo/typhon"
 
-	"github.com/icydoge/rimegate/config"
-	"github.com/icydoge/rimegate/types"
+	"github.com/chongyangshi/rimegate/config"
+	"github.com/chongyangshi/rimegate/types"
 )
 
 var cacheValidity time.Duration

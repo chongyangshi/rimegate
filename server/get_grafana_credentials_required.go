@@ -3,8 +3,8 @@ package server
 import (
 	"github.com/monzo/typhon"
 
-	"github.com/icydoge/rimegate/config"
-	"github.com/icydoge/rimegate/types"
+	"github.com/chongyangshi/rimegate/config"
+	"github.com/chongyangshi/rimegate/types"
 )
 
 // This endpoint tells the client whether it needs to collect Grafana username/password

@@ -10,9 +10,9 @@ import (
 	"github.com/monzo/slog"
 	"github.com/monzo/typhon"
 
-	"github.com/icydoge/rimegate/apiclient"
-	"github.com/icydoge/rimegate/config"
-	"github.com/icydoge/rimegate/server"
+	"github.com/chongyangshi/rimegate/apiclient"
+	"github.com/chongyangshi/rimegate/config"
+	"github.com/chongyangshi/rimegate/server"
 )
 
 func main() {

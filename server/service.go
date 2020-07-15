@@ -10,7 +10,7 @@ import (
 
 	"github.com/monzo/typhon"
 
-	"github.com/icydoge/rimegate/config"
+	"github.com/chongyangshi/rimegate/config"
 )
 
 // N.B. The service itself does not enforce authentication. It is recommended that

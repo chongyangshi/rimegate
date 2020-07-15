@@ -7,8 +7,8 @@ import (
 	"github.com/monzo/terrors"
 	"github.com/monzo/typhon"
 
-	"github.com/icydoge/rimegate/apiclient"
-	"github.com/icydoge/rimegate/types"
+	"github.com/chongyangshi/rimegate/apiclient"
+	"github.com/chongyangshi/rimegate/types"
 )
 
 func serveListDashboards(req typhon.Request) typhon.Response {
