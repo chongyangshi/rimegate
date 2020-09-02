@@ -169,17 +169,20 @@ function login() {
     listDashboards();
 }
 
+var dashboardRequest = null;
+var dashboardResponse = null;
+
 function refreshDashboard() {
     var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
     var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
     document.getElementById("TICKER").innerText = "Loading..."
 
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = done;
-    request.open("POST", apiBase + "/render");
-    request.setRequestHeader("Content-Type", "application/json");
-    request.send(JSON.stringify({
+    dashboardRequest = new XMLHttpRequest();
+    dashboardRequest.onreadystatechange = done;
+    dashboardRequest.open("POST", apiBase + "/render");
+    dashboardRequest.setRequestHeader("Content-Type", "application/json");
+    dashboardRequest.send(JSON.stringify({
         "dashboard_url": dashboardURL,
         "width": width,
         "height": height,
@@ -189,18 +192,18 @@ function refreshDashboard() {
     }));
 
     function done() {
-        if (request.readyState !== XMLHttpRequest.DONE) {
+        if (dashboardRequest.readyState !== XMLHttpRequest.DONE) {
             return
         }
 
-        var response = JSON.parse(request.responseText);
+        dashboardResponse = JSON.parse(dashboardRequest.responseText);
 
-        document.getElementById("RENDER").src = "data:image/png;base64," + response.payload;
+        document.getElementById("RENDER").src = "data:image/png;base64," + dashboardResponse.payload;
         document.getElementById("RENDER").style.display = "block";
         document.getElementById("INSTRUCTION").innerText = dashboardTitle;
-        document.getElementById("TICKER").innerText = response.utc_wall_clock;
+        document.getElementById("TICKER").innerText = dashboardResponse.utc_wall_clock;
 
-        console.log("Rendered payload " + response.payload.length + " for dashboard " + dashboardTitle + " at " + response.rendered_time);
+        console.log("Rendered payload " + dashboardResponse.payload.length + " for dashboard " + dashboardTitle + " at " + dashboardResponse.rendered_time);
 
         enableAutoFitPanelCheckbox();
     }
