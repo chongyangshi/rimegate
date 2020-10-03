@@ -2,7 +2,7 @@
 
 Rimegate is a Grafana dashboard rendering and caching proxy, with a custom-built front-end for displaying Grafana dashboards on devices with severely outdated browsers.
 
-![Rimegate Interface](https://images.ebornet.com/uploads/big/c5658c997f85075faa4f40e0a5339299.png)
+![Rimegate Interface](https://i.doge.at/uploads/big/c5658c997f85075faa4f40e0a5339299.png)
 
 ## Why?
 
